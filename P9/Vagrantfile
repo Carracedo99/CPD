@@ -1,0 +1,18 @@
+Vagrant.configure("2") do |config|
+	config.vm.box = "ubuntu/focal64"
+	config.vm.provision "shell", inline: <<-SHELL
+		sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+		systemctl restart sshd.service
+		echo "192.168.56.11 nodo1" >> /etc/hosts
+	SHELL
+	
+	config.vm.define :nodo1 do |ub_config|
+		ub_config.vm.hostname = "nodo1.vm"
+		ub_config.vm.network "private_network" , ip:"192.168.56.11"
+		ub_config.vm.provider :virtualbox do |vb|
+			vb.name = "nodo1"
+			vb.customize ["modifyvm", :id, "--memory", "2048"]
+			vb.customize ["modifyvm", :id, "--cpus", "2"]
+		end
+	end
+end
